@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+</head>
+<style type="text/css">
+	#pac-input, #latlong input {
+
+    background-color: #fff;
+    padding: 0 11px 0 13px;
+    font-family: Roboto;
+    font-size: 15px;
+    font-weight: 300;
+    text-overflow: ellipsis;
+
+}
+#pac-input {
+
+    width: 50%;
+
+}
+.controls {
+
+    margin-top: 16px;
+    border: 1px solid transparent;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    height: 32px;
+    outline: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+
+}
+
+#map-canvas {
+    width: 100%;
+    height: 350px;
+    padding: 0px;
+    float: left;
+}
+</style>
+<body>
+		<div style="min-height:350px">
+			<div id="latlong">
+				<input id="pac-input" class="controls" type="text" placeholder="search">
+				<input type="text" id="latbox" name="latbox" placeholder="latitude" class="controls" name="lat" readonly>
+				<input type="text" id="lngbox" name="lngbox" placeholder="longitude" class="controls" name="lng" readonly>
+			</div>
+			<div id="map-canvas"></div>
+		</div>
+</body>
+
+	<script src="https://maps.googleapis.com/maps/api/js?&libraries=places&key=AIzaSyA0xkgZsAcpZ5hSn7_JS3ZOrTQgi3D2kI4&"></script>
+
+<script type="text/javascript">
+	function initialize() {
+
+  if ( $( "#map-canvas" ).length ) {
+    // Google MAP
+    var start = new google.maps.LatLng(19.434678882285688, -99.18805345504768);
+    var marker;
+    var map;
+    var input = (document.getElementById('pac-input'));
+    var getdata = (document.getElementById('latlong'));
+    var latbox = document.getElementById('latbox');
+    var lngbox = document.getElementById('lngbox');
+
+    var searchBox;
+
+      var mapOptions = {
+          zoom: 16,
+          center: start
+      };
+
+      map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+      searchBox = new google.maps.places.SearchBox((input));
+      marker = new google.maps.Marker({
+          map:map,
+          draggable:true,
+          animation: google.maps.Animation.DROP,
+          position: start
+      });
+
+      google.maps.event.addListener(marker, 'dragend', function(event) {
+          var latlang = marker.getPosition().lat()+","+marker.getPosition().lng();
+          updateposition(latlang);
+      });
+
+      map.controls[google.maps.ControlPosition.TOP_LEFT].push(getdata);
+
+      if ((latbox.value.length > 0 ) && (lngbox.value.length > 0)) {
+          setfirst(Number(latbox.value), Number(lngbox.value));
+      }
+
+      google.maps.event.addListener(searchBox, 'places_changed', function() {
+          var places = searchBox.getPlaces();
+
+          if (places.length == 0) {
+            return;
+          }
+
+          for (var i = 0, place; place = places[i]; i++) {
+              marker.setPosition(place.geometry.location);
+              map.setCenter(place.geometry.location);
+              updateposition();
+          }
+      });
+  }
+
+  function updateposition(){
+      latbox.value = marker.getPosition().lat();
+      lngbox.value = marker.getPosition().lng();
+  }
+
+
+  function setfirst(latvar, lngvar){
+      map.setCenter({lat: latvar, lng: lngvar});
+      marker.setPosition({lat: latvar, lng: lngvar});
+  }
+}
+
+initialize();
+
+</script>
+
+</html>
